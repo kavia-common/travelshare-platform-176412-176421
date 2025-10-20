@@ -10,7 +10,6 @@ jest.mock("@/lib/client/mutations", () => ({
 
 import PostCard from "./PostCard";
 import type { Post } from "@/types/post";
-import type { Post } from "@/types/post";
 
 const samplePost: Post = {
   _id: "abc123",

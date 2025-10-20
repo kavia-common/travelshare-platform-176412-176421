@@ -11,7 +11,9 @@ import {
 
 /**
  * GET /api/posts
- * Returns a paginated list of posts with optional filters and sorting.
+ * Summary: List posts with pagination, filters, and sorting
+ * Description:
+ * - Returns a paginated list of posts with optional filters and sorting.
  * Query params:
  * - page: number (default 1)
  * - limit: number (default 10, max 100)

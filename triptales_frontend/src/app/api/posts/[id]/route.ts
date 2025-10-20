@@ -6,7 +6,8 @@ import { postUpdateSchema, formatZodError, safeParseJson } from "@/lib/validatio
 
 /**
  * GET /api/posts/:id
- * Returns a single post by id (404 if not found).
+ * Summary: Fetch a single post by id
+ * Description: Returns a single post by id (404 if not found).
  *
  * Next.js Route Handler signature:
  *   GET(request: Request, context: { params: Promise<{ id: string }> })
