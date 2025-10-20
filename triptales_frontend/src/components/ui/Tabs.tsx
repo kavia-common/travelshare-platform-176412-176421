@@ -2,11 +2,13 @@
 
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
+import { getFocusRing } from "@/lib/theme";
 
 export interface TabItem {
   id: string;
   label: string;
   content: React.ReactNode;
+  icon?: React.ReactNode;
 }
 
 export interface TabsProps {
@@ -26,7 +28,15 @@ export const Tabs: React.FC<TabsProps> = ({ items, defaultActiveId, onChange }) 
 
   return (
     <div>
-      <div role="tablist" aria-label="Tabs" className="flex gap-2 border-b border-gray-200">
+      {/* Tab List */}
+      <div 
+        role="tablist" 
+        aria-label="Tabs" 
+        className={cn(
+          "flex gap-1 p-1 bg-gray-100/70 rounded-lg",
+          "border border-gray-200/50 backdrop-blur-sm"
+        )}
+      >
         {items.map((item) => {
           const isActive = item.id === active;
           return (
@@ -38,18 +48,26 @@ export const Tabs: React.FC<TabsProps> = ({ items, defaultActiveId, onChange }) 
               id={`tab-${item.id}`}
               onClick={() => onTabClick(item.id)}
               className={cn(
-                "px-3 py-2 text-sm rounded-t-md",
+                "flex items-center gap-2 px-4 py-2.5 rounded-md text-sm font-medium",
+                "transition-all duration-200",
+                getFocusRing(),
                 isActive
-                  ? "text-[color:var(--color-primary)] border-b-2 border-[color:var(--color-primary)]"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? cn(
+                      "bg-white text-[color:var(--color-primary)]",
+                      "shadow-sm ring-1 ring-gray-200/50"
+                    )
+                  : "text-gray-600 hover:text-gray-900 hover:bg-white/50"
               )}
             >
+              {item.icon && <span aria-hidden="true">{item.icon}</span>}
               {item.label}
             </button>
           );
         })}
       </div>
-      <div className="mt-3">
+
+      {/* Tab Panels */}
+      <div className="mt-4">
         {items.map((item) =>
           item.id === active ? (
             <div
@@ -57,6 +75,7 @@ export const Tabs: React.FC<TabsProps> = ({ items, defaultActiveId, onChange }) 
               role="tabpanel"
               id={`panel-${item.id}`}
               aria-labelledby={`tab-${item.id}`}
+              className="animate-in fade-in duration-200"
             >
               {item.content}
             </div>

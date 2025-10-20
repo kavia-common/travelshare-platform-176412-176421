@@ -17,10 +17,13 @@ type Props = {
 
 /**
  * PUBLIC_INTERFACE
- * Navbar - Presentational navigation bar that adapts to auth state.
- * - Shows Login/Signup when not authenticated
- * - Shows user's email/initial and Logout when authenticated
- * - Includes mobile-friendly actions (no separate duplicate bars needed)
+ * Navbar - Premium navigation bar with elevated visual design.
+ * Features:
+ * - Glassmorphism backdrop with smooth blur
+ * - Enhanced hover states with smooth transitions
+ * - Active state indicators with gradient accents
+ * - User avatar with initial
+ * - Micro-interactions on all interactive elements
  */
 export const Navbar: React.FC<Props> = ({ session }) => {
   const pathname = usePathname();
@@ -28,10 +31,15 @@ export const Navbar: React.FC<Props> = ({ session }) => {
   const isActive = (href: string) =>
     pathname === href || (href !== "/" && pathname?.startsWith(href));
 
-  const baseLink =
-    "text-sm px-2.5 py-2 rounded-md text-gray-700 hover:text-[color:var(--color-primary)]";
-  const activeLink =
-    "text-[color:var(--color-primary)] bg-blue-50 ring-1 ring-blue-100";
+  const baseLink = cn(
+    "relative text-sm font-medium px-3 py-2 rounded-lg transition-all duration-200",
+    "text-gray-700 hover:text-[color:var(--color-primary)] hover:bg-blue-50/50"
+  );
+  
+  const activeLink = cn(
+    "text-[color:var(--color-primary)] bg-gradient-to-br from-blue-50 to-blue-100/50",
+    "shadow-sm ring-1 ring-blue-200/50"
+  );
 
   const handleLogout = async () => {
     try {
@@ -39,7 +47,6 @@ export const Navbar: React.FC<Props> = ({ session }) => {
     } catch {
       // ignore network errors for logout
     } finally {
-      // Ensure the user is redirected to home after logout as per acceptance criteria
       window.location.assign("/");
     }
   };
@@ -49,29 +56,39 @@ export const Navbar: React.FC<Props> = ({ session }) => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-white/60",
-        "border-b border-gray-200"
+        "sticky top-0 z-50 glass-effect border-b border-gray-200/50",
+        "backdrop-blur-xl supports-[backdrop-filter]:bg-white/80"
       )}
       role="banner"
     >
       <div className="app-container flex items-center justify-between py-3">
+        {/* Logo */}
         <Link
           href={"/" as Route}
           className={cn(
-            "inline-flex items-center gap-2 font-semibold text-[color:var(--color-text)]",
+            "inline-flex items-center gap-2.5 font-bold text-lg",
+            "text-[color:var(--color-text)] hover:opacity-80 transition-opacity",
             getFocusRing()
           )}
           aria-label="TripTales home"
         >
           <span
-            className="inline-block h-8 w-8 rounded-lg bg-[color:var(--color-primary)] shadow-sm"
+            className={cn(
+              "inline-flex h-9 w-9 items-center justify-center rounded-xl",
+              "bg-gradient-to-br from-[color:var(--color-primary)] to-blue-600",
+              "shadow-md text-white text-lg font-bold",
+              "transition-transform hover:scale-105"
+            )}
             aria-hidden="true"
-          />
-          <span>TripTales</span>
+          >
+            T
+          </span>
+          <span className="hidden sm:inline">TripTales</span>
         </Link>
 
-        <nav aria-label="Primary navigation">
-          <ul className="hidden md:flex items-center gap-1">
+        {/* Desktop Navigation */}
+        <nav aria-label="Primary navigation" className="hidden md:block">
+          <ul className="flex items-center gap-1">
             <li>
               <Link
                 href={"/" as Route}
@@ -102,13 +119,16 @@ export const Navbar: React.FC<Props> = ({ session }) => {
           </ul>
         </nav>
 
+        {/* Actions */}
         <div className="flex items-center gap-2" aria-label="Actions">
           {!session ? (
             <>
               <Link
                 href={"/auth/login" as Route}
                 className={cn(
-                  "text-sm px-3 py-2 rounded-md text-gray-700 hover:text-[color:var(--color-primary)]",
+                  "text-sm font-medium px-4 py-2 rounded-lg",
+                  "text-gray-700 hover:text-[color:var(--color-primary)] hover:bg-gray-100/70",
+                  "transition-all duration-200",
                   getFocusRing()
                 )}
                 aria-label="Log in"
@@ -118,8 +138,10 @@ export const Navbar: React.FC<Props> = ({ session }) => {
               <Link
                 href={"/auth/signup" as Route}
                 className={cn(
-                  "text-sm px-3 py-2 rounded-md text-white bg-[color:var(--color-secondary)] shadow-sm",
-                  "hover:brightness-105 active:brightness-95",
+                  "text-sm font-medium px-4 py-2 rounded-lg",
+                  "text-white bg-gradient-to-r from-[color:var(--color-secondary)] to-amber-500",
+                  "shadow-md hover:shadow-lg hover:scale-[1.02]",
+                  "active:scale-[0.98] transition-all duration-200",
                   getFocusRing()
                 )}
                 aria-label="Sign up"
@@ -129,27 +151,35 @@ export const Navbar: React.FC<Props> = ({ session }) => {
             </>
           ) : (
             <>
+              {/* User Info */}
               <div
-                className="hidden sm:flex items-center gap-2 text-sm text-gray-700"
+                className="hidden sm:flex items-center gap-2.5 px-3 py-1.5 rounded-lg bg-gray-50/70"
                 aria-label="Current user"
               >
                 <span
                   aria-hidden="true"
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-white font-semibold"
+                  className={cn(
+                    "inline-flex h-8 w-8 items-center justify-center",
+                    "rounded-full bg-gradient-to-br from-blue-600 to-blue-700",
+                    "text-white font-semibold text-sm shadow-sm"
+                  )}
                   title={session.email}
                 >
                   {userInitial || "U"}
                 </span>
-                <span className="max-w-[160px] truncate" title={session.email}>
+                <span className="max-w-[140px] truncate text-sm font-medium text-gray-700" title={session.email}>
                   {session.email}
                 </span>
               </div>
+
+              {/* Logout Button */}
               <button
                 type="button"
                 onClick={handleLogout}
                 className={cn(
-                  "text-sm px-3 py-2 rounded-md bg-gray-100 text-gray-800",
-                  "hover:bg-gray-200 active:bg-gray-300",
+                  "text-sm font-medium px-4 py-2 rounded-lg",
+                  "bg-gray-100 text-gray-800 hover:bg-gray-200",
+                  "active:bg-gray-300 transition-all duration-200",
                   getFocusRing()
                 )}
                 aria-label="Log out"
@@ -159,15 +189,21 @@ export const Navbar: React.FC<Props> = ({ session }) => {
             </>
           )}
 
+          {/* Primary CTA - Always visible */}
           <Link
             href={"/posts/new" as Route}
             className={cn(
-              "text-sm px-3 py-2 rounded-md text-white bg-[color:var(--color-primary)] shadow-sm",
-              "hover:brightness-105 active:brightness-95",
+              "text-sm font-medium px-4 py-2 rounded-lg hidden md:inline-flex items-center",
+              "text-white bg-gradient-to-r from-[color:var(--color-primary)] to-blue-600",
+              "shadow-md hover:shadow-lg hover:scale-[1.02]",
+              "active:scale-[0.98] transition-all duration-200",
               getFocusRing()
             )}
             aria-label="Create a new post"
           >
+            <svg className="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
             New Post
           </Link>
         </div>

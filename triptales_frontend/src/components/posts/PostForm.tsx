@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { getFocusRing } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 import { ImageUploader } from "@/components/uploads/ImageUploader";
 import TagChips from "./TagChips";
@@ -92,48 +91,76 @@ export default function PostForm({
 
   return (
     <form onSubmit={submit} className="space-y-6">
-      <section className="card-surface p-4 space-y-3">
+      {/* Basic Information */}
+      <section className={cn(
+        "bg-white rounded-xl shadow-md border border-gray-100/50 p-6 space-y-5"
+      )}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Basic Information</h3>
+        </div>
+
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-900 mb-2">
+            Title <span className="text-red-500">*</span>
+          </label>
           <Input
+            id="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            aria-required
-            placeholder="A day in Kyoto’s bamboo forest"
+            required
+            placeholder="A day in Kyoto's bamboo forest"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+          <label htmlFor="content" className="block text-sm font-medium text-gray-900 mb-2">
+            Content
+          </label>
           <textarea
+            id="content"
             value={content}
             onChange={(e) => setContent(e.target.value)}
             rows={6}
             placeholder="Write your travel story..."
             className={cn(
-              "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400",
-              "hover:border-gray-400 focus:border-[color:var(--color-primary)]",
-              getFocusRing()
+              "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900",
+              "placeholder:text-gray-400 hover:border-gray-400",
+              "focus:border-[color:var(--color-primary)] focus-visible:outline-none",
+              "focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(37,99,235,0.6)]",
+              "transition-colors resize-y"
             )}
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
+          <label className="block text-sm font-medium text-gray-900 mb-2">
+            Images
+          </label>
           <ImageUploader onChange={onImagesChange} />
           {images.length > 0 && (
-            <ul className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+            <ul className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
               {images.map((img, idx) => (
-                <li key={img.publicId} className="relative">
+                <li key={img.publicId} className="relative group">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={`Image ${idx + 1}`} className="h-28 w-full object-cover rounded-md border border-gray-200" />
+                  <img 
+                    src={img.url} 
+                    alt={`Image ${idx + 1}`} 
+                    className={cn(
+                      "h-32 w-full object-cover rounded-lg border border-gray-200",
+                      "group-hover:opacity-90 transition-opacity"
+                    )} 
+                  />
                   <button
                     type="button"
                     onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                    className="absolute top-1 right-1 text-xs rounded-md bg-white/90 px-1 hover:bg-white"
+                    className={cn(
+                      "absolute top-2 right-2 text-xs rounded-md",
+                      "bg-white/95 px-2 py-1 hover:bg-white shadow-md",
+                      "opacity-0 group-hover:opacity-100 transition-opacity"
+                    )}
                     aria-label="Remove image"
                   >
-                    ✕
+                    Remove
                   </button>
                 </li>
               ))}
@@ -142,14 +169,24 @@ export default function PostForm({
         </div>
       </section>
 
-      <section className="card-surface p-4 space-y-3">
+      {/* Metadata */}
+      <section className={cn(
+        "bg-white rounded-xl shadow-md border border-gray-100/50 p-6 space-y-5"
+      )}>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tags</label>
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Metadata & Details</h3>
+        </div>
+
+        <div>
+          <label htmlFor="tag-input-form" className="block text-sm font-medium text-gray-900 mb-2">
+            Tags
+          </label>
           <div className="flex gap-2">
             <Input
+              id="tag-input-form"
               value={tagInput}
               onChange={(e) => setTagInput(e.target.value)}
-              placeholder="Add tag and press Enter"
+              placeholder="Add tag..."
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -157,20 +194,25 @@ export default function PostForm({
                 }
               }}
             />
-            <Button type="button" onClick={addTag}>Add</Button>
+            <Button type="button" onClick={addTag} size="md">Add</Button>
           </div>
-          <div className="mt-2">
-            <TagChips tags={tags} onRemove={removeTag} />
-          </div>
+          {tags.length > 0 && (
+            <div className="mt-3">
+              <TagChips tags={tags} onRemove={removeTag} />
+            </div>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Locations</label>
+          <label htmlFor="location-input-form" className="block text-sm font-medium text-gray-900 mb-2">
+            Locations
+          </label>
           <div className="flex gap-2">
             <Input
+              id="location-input-form"
               value={locInput}
               onChange={(e) => setLocInput(e.target.value)}
-              placeholder="Add location and press Enter"
+              placeholder="Add location..."
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
                   e.preventDefault();
@@ -178,17 +220,21 @@ export default function PostForm({
                 }
               }}
             />
-            <Button type="button" onClick={addLoc}>Add</Button>
+            <Button type="button" onClick={addLoc} size="md">Add</Button>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {locations.map((l) => (
-              <LocationChip key={l} location={l} onRemove={() => removeLoc(l)} />
-            ))}
-          </div>
+          {locations.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {locations.map((l) => (
+                <LocationChip key={l} location={l} onRemove={() => removeLoc(l)} />
+              ))}
+            </div>
+          )}
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Tips</label>
+          <label className="block text-sm font-medium text-gray-900 mb-2">
+            Travel Tips
+          </label>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
             <Input
               value={tipInput}
@@ -200,42 +246,61 @@ export default function PostForm({
               onChange={(e) => setTipAuthorInput(e.target.value)}
               placeholder="Author (optional)"
             />
-            <Button type="button" onClick={addTip}>Add tip</Button>
+            <Button type="button" onClick={addTip} size="md">Add tip</Button>
           </div>
-          <ul className="mt-2 space-y-2">
-            {tips.map((t, idx) => (
-              <li key={`${t.text}-${idx}`} className="flex items-start justify-between rounded-md border border-gray-200 bg-white p-2">
-                <div>
-                  <p className="text-sm text-gray-800">{t.text}</p>
-                  {t.author && <p className="text-xs text-gray-500">— {t.author}</p>}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => removeTip(idx)}
-                  className="text-xs rounded-md px-2 py-1 hover:bg-gray-100"
-                  aria-label="Remove tip"
+          {tips.length > 0 && (
+            <ul className="mt-4 space-y-2">
+              {tips.map((t, idx) => (
+                <li 
+                  key={`${t.text}-${idx}`} 
+                  className={cn(
+                    "flex items-start justify-between rounded-lg",
+                    "border border-gray-200 bg-gray-50 p-3"
+                  )}
                 >
-                  Remove
-                </button>
-              </li>
-            ))}
-          </ul>
+                  <div>
+                    <p className="text-sm text-gray-800 font-medium">{t.text}</p>
+                    {t.author && <p className="text-xs text-gray-500 mt-0.5">— {t.author}</p>}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeTip(idx)}
+                    className="text-xs rounded-md px-2 py-1 hover:bg-gray-200 transition-colors"
+                    aria-label="Remove tip"
+                  >
+                    Remove
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Author</label>
-            <Input value={author} onChange={(e) => setAuthor(e.target.value)} placeholder="Your name or handle" />
+            <label htmlFor="author" className="block text-sm font-medium text-gray-900 mb-2">
+              Author
+            </label>
+            <Input 
+              id="author"
+              value={author} 
+              onChange={(e) => setAuthor(e.target.value)} 
+              placeholder="Your name or handle" 
+            />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-900 mb-2">
+              Status
+            </label>
             <select
+              id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value as "draft" | "published")}
               className={cn(
-                "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900",
+                "w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900",
                 "hover:border-gray-400 focus:border-[color:var(--color-primary)]",
-                getFocusRing()
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+                "focus-visible:ring-[rgba(37,99,235,0.6)] transition-colors cursor-pointer"
               )}
             >
               <option value="published">Published</option>
@@ -245,12 +310,20 @@ export default function PostForm({
         </div>
       </section>
 
-      <div className="flex items-center gap-2">
-        <Button type="submit" loading={submitting}>Save</Button>
-        <span className="text-sm text-gray-700">
-          {/* Using Link instead of <a> to navigate */}
-          <Link href="/" className="hover:underline">Cancel</Link>
-        </span>
+      {/* Actions */}
+      <div className="flex items-center gap-3">
+        <Button type="submit" loading={submitting} size="lg">
+          {submitting ? "Saving..." : "Save Post"}
+        </Button>
+        <Link 
+          href="/" 
+          className={cn(
+            "text-sm font-medium text-gray-600 hover:text-gray-900",
+            "underline transition-colors"
+          )}
+        >
+          Cancel
+        </Link>
       </div>
     </form>
   );

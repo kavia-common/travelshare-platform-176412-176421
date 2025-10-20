@@ -1,21 +1,44 @@
 import React from "react";
 import { cn } from "@/lib/utils";
-import { getFocusRing } from "@/lib/theme";
+import { getInputStyles } from "@/lib/theme";
 
-export type InputProps = React.InputHTMLAttributes<HTMLInputElement>;
+export type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  error?: boolean;
+  helperText?: string;
+};
 
 // PUBLIC_INTERFACE
-export const Input: React.FC<InputProps> = ({ className, ...rest }) => {
-  return (
-    <input
-      className={cn(
-        "w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400",
-        "hover:border-gray-400",
-        "focus:border-[color:var(--color-primary)]",
-        getFocusRing(),
-        className
-      )}
-      {...rest}
-    />
-  );
-};
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ className, error = false, helperText, ...rest }, ref) => {
+    const inputId = rest.id || `input-${Math.random().toString(36).substr(2, 9)}`;
+
+    return (
+      <div className="w-full">
+        <input
+          ref={ref}
+          id={inputId}
+          className={cn(
+            getInputStyles(error),
+            className
+          )}
+          aria-invalid={error ? "true" : "false"}
+          aria-describedby={helperText ? `${inputId}-helper` : undefined}
+          {...rest}
+        />
+        {helperText && (
+          <p
+            id={`${inputId}-helper`}
+            className={cn(
+              "mt-1.5 text-xs",
+              error ? "text-red-600" : "text-gray-500"
+            )}
+          >
+            {helperText}
+          </p>
+        )}
+      </div>
+    );
+  }
+);
+
+Input.displayName = "Input";

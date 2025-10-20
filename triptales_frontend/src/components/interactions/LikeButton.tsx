@@ -29,7 +29,7 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
 
-  const label = useMemo(() => (liked ? "Unlike" : "Like"), [liked]);
+  const label = useMemo(() => (liked ? "Liked" : "Like"), [liked]);
 
   const onClick = useCallback(async () => {
     if (loading) return;
@@ -60,7 +60,6 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
     if (!result.ok) {
       setToast({ message: result.error || "Failed to update like", type: "error" });
     } else {
-      setToast({ message: prevLiked ? "Unliked" : "Liked!", type: "success" });
       onChange?.(!prevLiked, Math.max(0, prevCount + (prevLiked ? -1 : 1)));
     }
   }, [loading, liked, count, onChange, postId]);
@@ -73,21 +72,43 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
         disabled={loading}
         aria-pressed={liked ? "true" : "false"}
         className={cn(
-          "text-sm px-3 py-1.5 rounded-md border shadow-sm bg-white hover:bg-gray-50",
-          liked ? "border-amber-300 text-amber-700" : "border-gray-200 text-gray-700",
-          "active:translate-y-[0.5px]",
+          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
+          "text-sm font-medium transition-all duration-200",
+          "border shadow-sm",
+          liked
+            ? cn(
+                "bg-gradient-to-r from-red-50 to-pink-50",
+                "border-red-200 text-red-700",
+                "hover:from-red-100 hover:to-pink-100"
+              )
+            : cn(
+                "bg-white border-gray-200 text-gray-700",
+                "hover:bg-gray-50 hover:border-gray-300"
+              ),
+          "active:scale-95",
           getFocusRing()
         )}
         title={label}
       >
-        <span className="mr-1" aria-hidden="true">
+        <span 
+          className={cn(
+            "text-base transition-transform",
+            liked && "animate-pulse"
+          )} 
+          aria-hidden="true"
+        >
           {liked ? "❤️" : "🤍"}
         </span>
-        {label}
+        <span>{label}</span>
+        {count > 0 && (
+          <span className={cn(
+            "ml-0.5 px-1.5 py-0.5 rounded-full text-xs font-semibold",
+            liked ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"
+          )}>
+            {count}
+          </span>
+        )}
       </button>
-      <span className="text-sm text-gray-700" aria-label="Like count">
-        {count}
-      </span>
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
   );

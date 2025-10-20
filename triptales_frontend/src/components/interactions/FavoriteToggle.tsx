@@ -50,7 +50,6 @@ export const FavoriteToggle: React.FC<FavoriteToggleProps> = ({
     if (!result.ok) {
       setToast({ message: result.error || "Failed to update favorite", type: "error" });
     } else {
-      setToast({ message: isFavorited ? "Removed from favorites" : "Added to favorites", type: "success" });
       onChange?.(
         isFavorited
           ? prevFavorites.filter((f) => f !== marker)
@@ -59,25 +58,52 @@ export const FavoriteToggle: React.FC<FavoriteToggleProps> = ({
     }
   }, [favorites, isFavorited, loading, onChange, postId, userId, marker]);
 
+  const count = favorites.length;
+
   return (
-    <div className={cn("inline-flex items-center", className)}>
+    <div className={cn("inline-flex items-center gap-2", className)}>
       <button
         type="button"
         onClick={onClick}
         disabled={loading}
         aria-pressed={isFavorited ? "true" : "false"}
         className={cn(
-          "text-sm px-3 py-1.5 rounded-md border shadow-sm bg-white hover:bg-gray-50",
-          isFavorited ? "border-blue-300 text-blue-700" : "border-gray-200 text-gray-700",
-          "active:translate-y-[0.5px]",
+          "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg",
+          "text-sm font-medium transition-all duration-200",
+          "border shadow-sm",
+          isFavorited
+            ? cn(
+                "bg-gradient-to-r from-amber-50 to-yellow-50",
+                "border-amber-200 text-amber-700",
+                "hover:from-amber-100 hover:to-yellow-100"
+              )
+            : cn(
+                "bg-white border-gray-200 text-gray-700",
+                "hover:bg-gray-50 hover:border-gray-300"
+              ),
+          "active:scale-95",
           getFocusRing()
         )}
-        title={isFavorited ? "Unfavorite" : "Favorite"}
+        title={isFavorited ? "Remove from favorites" : "Add to favorites"}
       >
-        <span className="mr-1" aria-hidden="true">
+        <span 
+          className={cn(
+            "text-base transition-transform",
+            isFavorited && "animate-pulse"
+          )} 
+          aria-hidden="true"
+        >
           {isFavorited ? "⭐" : "☆"}
         </span>
-        {isFavorited ? "Favorited" : "Favorite"}
+        <span>{isFavorited ? "Saved" : "Save"}</span>
+        {count > 0 && (
+          <span className={cn(
+            "ml-0.5 px-1.5 py-0.5 rounded-full text-xs font-semibold",
+            isFavorited ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-600"
+          )}>
+            {count}
+          </span>
+        )}
       </button>
       {toast && <Toast message={toast.message} type={toast.type} />}
     </div>
