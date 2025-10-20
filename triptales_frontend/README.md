@@ -1,36 +1,142 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TripTales Frontend (Next.js App Router)
 
-## Getting Started
+TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, and MongoDB/Mongoose. Users can share posts with photo galleries, add tips, and discover content using filters for tags and locations. This frontend provides:
+- App Router pages and components
+- API routes for posts and Cloudinary uploads
+- Direct-to-Cloudinary upload flow with signed requests
+- A MongoDB connection via Mongoose
 
-First, run the development server:
+## Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- Node.js 18+ (Node 20 recommended)
+- npm, yarn, pnpm, or bun (choose one)
+- A MongoDB database (Atlas or self-hosted)
+- A Cloudinary account (for image uploads)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environment Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1) Copy the example env file and fill in values:
+   cp .env.example .env
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2) Required variables:
+   - MONGODB_URI: MongoDB connection string used by the API routes and server actions.
+   - CLOUDINARY_CLOUD_NAME: Cloudinary cloud name (required for signed uploads).
+   - CLOUDINARY_API_KEY: Cloudinary API key (server-side).
+   - CLOUDINARY_API_SECRET: Cloudinary API secret (server-side, private).
+   - NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: Cloud name exposed to client for building endpoints.
+   - Optional:
+     - CLOUDINARY_UPLOAD_PRESET: If using an unsigned preset or need to include preset in signed params.
+     - NEXT_PUBLIC_SITE_URL: Absolute site URL, used by SEO/SSR to generate canonical URLs and for server-side fetches.
 
-## Learn More
+3) Do not hardcode secrets. The app reads configuration exclusively from environment variables.
 
-To learn more about Next.js, take a look at the following resources:
+### Variable Reference
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- MONGODB_URI
+  Description: Mongo connection string used by Mongoose.
+  Where used: src/lib/db/mongodb.ts (connectToDatabase).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- CLOUDINARY_CLOUD_NAME
+  Description: Cloudinary cloud name for building upload URLs.
+  Where used: src/lib/cloudinary.ts.
 
-## Deploy on Vercel
+- CLOUDINARY_API_KEY
+  Description: Cloudinary API key for signed requests.
+  Where used: src/lib/cloudinary.ts and returned to client for uploads (never the secret).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- CLOUDINARY_API_SECRET
+  Description: Cloudinary API secret used to compute signatures (never sent to clients).
+  Where used: src/lib/cloudinary.ts.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- CLOUDINARY_UPLOAD_PRESET (optional)
+  Description: Unsigned preset name if you use unsigned uploads or want to include in signed params.
+  Where used: src/lib/cloudinary.ts.
+
+- NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+  Description: Public cloud name available to client code.
+  Where used: Client-side components (upload flow).
+
+- NEXT_PUBLIC_SITE_URL (optional but recommended in production)
+  Description: Absolute URL of the site (e.g., https://triptales.example.com).
+  Where used: SEO helpers and server-side fetches to generate absolute URLs.
+
+## Local Development
+
+- Install dependencies:
+  npm install
+
+- Run the dev server:
+  npm run dev
+
+- Open the app:
+  http://localhost:3000
+
+Tip: Ensure MongoDB and Cloudinary vars are set in your .env before starting to avoid runtime errors (e.g., missing MONGODB_URI or Cloudinary credentials).
+
+## Cloudinary Configuration
+
+TripTales uses a secure, signed direct-upload flow:
+
+- Server-side signing endpoint:
+  - Route: POST /api/uploads/sign
+  - Generates a signature using CLOUDINARY_API_SECRET.
+  - Allows a limited set of parameters (folder, timestamp, etc.) and returns only safe fields (signature, timestamp, api_key, cloud_name, optional upload_preset).
+
+- Client-side upload workflow:
+  - The ImageUploader component asks the server for signed params, then uploads directly to Cloudinary.
+
+Required Cloudinary values:
+- CLOUDINARY_CLOUD_NAME
+- CLOUDINARY_API_KEY
+- CLOUDINARY_API_SECRET
+
+Optional:
+- CLOUDINARY_UPLOAD_PRESET (if using unsigned uploads or want to include it in signed params).
+
+Security notes:
+- Never expose CLOUDINARY_API_SECRET to the client.
+- The app never returns the secret; it only returns signature and public fields.
+
+## MongoDB Configuration
+
+- Set MONGODB_URI in your .env.
+- The app creates a singleton Mongoose connection with caching to support hot reload in dev.
+- Post schema, indexes, and API routes reside under src/lib/db and src/app/api.
+
+## Deployment Notes
+
+- Server runtime: This project relies on serverless/serverful API routes and server-side code (MongoDB + signing). It must run with a Node.js server runtime. Do not statically export.
+- The next.config.ts is configured for server runtime and remote image patterns. Do not set output: "export". This would break API routes and server features.
+- Ensure environment variables are provided in the hosting platform’s configuration:
+  - MONGODB_URI
+  - CLOUDINARY_CLOUD_NAME
+  - CLOUDINARY_API_KEY
+  - CLOUDINARY_API_SECRET
+  - Optional: CLOUDINARY_UPLOAD_PRESET, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_SITE_URL
+
+- Image optimization: next/image is configured to allow common hosts including res.cloudinary.com.
+
+## Project Scripts
+
+- npm run dev: Start dev server on port 3000
+- npm run build: Build for production (server runtime)
+- npm run start: Start production server
+- npm run lint: Lint codebase
+
+## Notes and Gotchas
+
+- Do not use output: "export" in next.config.ts. The app depends on server routes and cannot be a static export.
+- If uploads fail, verify Cloudinary env vars and that your account/preset allows the requested operations.
+- If database requests fail, confirm MONGODB_URI is valid and reachable (network/IP allowlists in Atlas).
+
+## Directory Highlights
+
+- src/app/api/posts: CRUD endpoints for posts (MongoDB).
+- src/app/api/uploads/sign: Signing endpoint for Cloudinary uploads.
+- src/lib/db: Mongoose connection and Post model.
+- src/lib/cloudinary.ts: Reads env, computes upload signatures.
+- src/components/uploads/ImageUploader.tsx: Client uploader with progress and drag-and-drop.
+
+## License
+
+This project is part of the TripTales platform. Use subject to the platform’s overall license and terms.

@@ -16,7 +16,12 @@ export default function EditPostPage() {
   useEffect(() => {
     let ignore = false;
     const run = async () => {
-      const res = await fetch(`/api/posts/${params.id}`);
+      const pid = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params?.id?.[0] : undefined;
+      if (!pid) {
+        setLoading(false);
+        return;
+      }
+      const res = await fetch(`/api/posts/${pid}`);
       if (!res.ok) {
         setLoading(false);
         return;
@@ -31,10 +36,15 @@ export default function EditPostPage() {
     return () => {
       ignore = true;
     };
-  }, [params.id]);
+  }, [params?.id]);
 
   const onSubmit = async (data: Post) => {
-    const res = await fetch(`/api/posts/${params.id}`, {
+    const pid = typeof params?.id === "string" ? params.id : Array.isArray(params?.id) ? params?.id?.[0] : undefined;
+    if (!pid) {
+      setToast({ message: "Invalid post id", type: "error" });
+      return;
+    }
+    const res = await fetch(`/api/posts/${pid}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
