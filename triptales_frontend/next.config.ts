@@ -12,7 +12,9 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "images.unsplash.com" },
       { protocol: "https", hostname: "res.cloudinary.com" },
-      { protocol: "https", hostname: "lh3.googleusercontent.com" }
+      { protocol: "https", hostname: "lh3.googleusercontent.com" },
+      // Allow generic example/test images to avoid build-time domain errors in tests or placeholders
+      { protocol: "https", hostname: "example.com" }
     ]
   },
   experimental: {

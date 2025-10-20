@@ -2,6 +2,10 @@
 import { NextResponse } from "next/server";
 import { createSignedUploadParams, getCloudinaryPublicConfig } from "@/lib/cloudinary";
 
+// Ensure this route is always dynamic and not statically prerendered
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * POST /api/uploads/sign
  * Summary: Create a signed upload payload for direct uploads to Cloudinary

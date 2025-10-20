@@ -7,13 +7,16 @@ import LocationChip from "./LocationChip";
 import { LikeButton } from "@/components/interactions/LikeButton";
 import { FavoriteToggle } from "@/components/interactions/FavoriteToggle";
 
-// PUBLIC_INTERFACE
 export default function PostCard({ post }: { post: Post }) {
   const thumb = post.images?.[0];
 
   return (
     <article className="group overflow-hidden rounded-lg bg-white shadow-sm border border-gray-100 transition hover:shadow-md">
-      <a href={`/posts/${post._id}`} aria-label={`Open post: ${post.title}`} className="block">
+      <a
+        href={`/posts/${post._id}`}
+        aria-label={`Open post: ${post.title}`}
+        className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[rgba(37,99,235,0.6)]"
+      >
         <div className="relative aspect-[4/3] bg-gray-100">
           {thumb ? (
             <Image
@@ -25,7 +28,9 @@ export default function PostCard({ post }: { post: Post }) {
               priority={false}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl" aria-hidden="true">🗺️</div>
+            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl" aria-hidden="true">
+              🗺️
+            </div>
           )}
         </div>
         <div className="p-4">

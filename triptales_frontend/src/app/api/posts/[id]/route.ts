@@ -4,6 +4,10 @@ import { connectToDatabase } from "@/lib/db/mongodb";
 import PostModel from "@/lib/db/models/Post";
 import { postUpdateSchema, formatZodError, safeParseJson } from "@/lib/validation/postSchemas";
 
+// Ensure this route is always dynamic and not statically prerendered
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * GET /api/posts/:id
  * Summary: Fetch a single post by id

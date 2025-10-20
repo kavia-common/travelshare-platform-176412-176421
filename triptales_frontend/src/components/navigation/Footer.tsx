@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export const Footer: React.FC = () => {
   return (
@@ -9,9 +10,21 @@ export const Footer: React.FC = () => {
         </p>
         <nav aria-label="Footer navigation">
           <ul className="flex items-center gap-6 text-sm text-gray-600">
-            <li><a className="hover:text-[color:var(--color-primary)]" href="/privacy">Privacy</a></li>
-            <li><a className="hover:text-[color:var(--color-primary)]" href="/terms">Terms</a></li>
-            <li><a className="hover:text-[color:var(--color-primary)]" href="/contact">Contact</a></li>
+            <li>
+              <Link className="hover:text-[color:var(--color-primary)]" href="/">
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-[color:var(--color-primary)]" href="/explore">
+                Explore
+              </Link>
+            </li>
+            <li>
+              <Link className="hover:text-[color:var(--color-primary)]" href="/posts/new">
+                New Post
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

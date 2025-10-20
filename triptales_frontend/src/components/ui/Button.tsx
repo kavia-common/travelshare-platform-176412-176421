@@ -34,7 +34,7 @@ export const Button: React.FC<ButtonProps> = ({
     primary:
       "text-white bg-[color:var(--color-primary)] hover:brightness-105 active:brightness-95 shadow-sm",
     secondary:
-      "text-gray-800 bg-amber-100 hover:bg-amber-200 active:bg-amber-300",
+      "text-gray-900 bg-amber-200 hover:bg-amber-300 active:bg-amber-400",
     ghost:
       "text-gray-700 hover:bg-gray-100 active:bg-gray-200",
     danger:

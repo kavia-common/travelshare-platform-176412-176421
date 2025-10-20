@@ -61,7 +61,15 @@ export default function EditPostPage() {
   if (loading) {
     return (
       <main className="app-container py-6">
-        <p className="text-gray-600">Loading…</p>
+        <div role="status" aria-live="polite" className="space-y-4">
+          <div className="h-6 w-40 bg-gray-200 rounded animate-pulse" />
+          <div className="card-surface p-4 space-y-3">
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+            <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse mt-3" />
+            <div className="h-24 w-full bg-gray-200 rounded animate-pulse" />
+          </div>
+        </div>
       </main>
     );
   }

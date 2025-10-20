@@ -39,7 +39,24 @@ export default async function Home() {
         </p>
       </header>
 
-      <Suspense fallback={<div className="text-gray-600" aria-live="polite">Loading posts…</div>}>
+      <Suspense
+        fallback={
+          <div role="status" aria-live="polite">
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <li key={i} className="animate-pulse overflow-hidden rounded-lg bg-white border border-gray-100">
+                  <div className="aspect-[4/3] bg-gray-200" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 w-2/3 bg-gray-200 rounded" />
+                    <div className="h-3 w-full bg-gray-200 rounded" />
+                    <div className="h-3 w-5/6 bg-gray-200 rounded" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        }
+      >
         <PostGrid posts={data} />
       </Suspense>
     </main>

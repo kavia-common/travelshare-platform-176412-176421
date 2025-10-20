@@ -43,7 +43,7 @@ async function fetchPage(page: number, query: QueryState, signal?: AbortSignal) 
 
 export default function ExplorePage() {
   const [query, setQuery] = useState<QueryState>(DEFAULT_QUERY);
-  const [items, setItems] = useState<Post[]>([]);
+  const [items, setItems] = useState<Post[] | null>(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -83,7 +83,7 @@ export default function ExplorePage() {
       setLoading(true);
       const next = page + 1;
       const { data, hasMore: more } = await fetchPage(next, { ...query, q: debouncedQ });
-      setItems((prev) => [...prev, ...data]);
+      setItems((prev) => (prev ? [...prev, ...data] : data));
       setPage(next);
       setHasMore(more);
       setLoading(false);
@@ -93,6 +93,7 @@ export default function ExplorePage() {
   });
 
   const onFiltersChange = useCallback((next: Partial<QueryState>) => {
+    setItems(null);
     setQuery((prev) => ({ ...prev, ...next }));
   }, []);
 
@@ -112,10 +113,7 @@ export default function ExplorePage() {
       </header>
 
       <section className="mb-4 card-surface p-4">
-        <PostFilters
-          value={query}
-          onChange={onFiltersChange}
-        />
+        <PostFilters value={query} onChange={onFiltersChange} />
       </section>
 
       <section aria-live="polite" aria-busy={loading ? "true" : "false"}>
@@ -125,9 +123,13 @@ export default function ExplorePage() {
             {hasMore ? "Scroll for more" : "End of results"}
           </p>
         </div>
-        <PostGrid posts={items} />
+        <PostGrid posts={items as Post[] | null as unknown as Post[]} />
         <div ref={sentinelRef} className="h-10" />
-        {loading && <div className="mt-4 text-gray-600">Loading…</div>}
+        {loading && (
+          <div className="mt-4 text-gray-600" aria-hidden>
+            Loading…
+          </div>
+        )}
       </section>
     </main>
   );

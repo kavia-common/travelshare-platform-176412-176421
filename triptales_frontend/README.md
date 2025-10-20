@@ -32,32 +32,32 @@ TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, a
 
 ### Variable Reference
 
-- MONGODB_URI
-  Description: Mongo connection string used by Mongoose.
+- MONGODB_URI  
+  Description: Mongo connection string used by Mongoose.  
   Where used: src/lib/db/mongodb.ts (connectToDatabase).
 
-- CLOUDINARY_CLOUD_NAME
-  Description: Cloudinary cloud name for building upload URLs.
+- CLOUDINARY_CLOUD_NAME  
+  Description: Cloudinary cloud name for building upload URLs.  
   Where used: src/lib/cloudinary.ts.
 
-- CLOUDINARY_API_KEY
-  Description: Cloudinary API key for signed requests.
+- CLOUDINARY_API_KEY  
+  Description: Cloudinary API key for signed requests.  
   Where used: src/lib/cloudinary.ts and returned to client for uploads (never the secret).
 
-- CLOUDINARY_API_SECRET
-  Description: Cloudinary API secret used to compute signatures (never sent to clients).
+- CLOUDINARY_API_SECRET  
+  Description: Cloudinary API secret used to compute signatures (never sent to clients).  
   Where used: src/lib/cloudinary.ts.
 
-- CLOUDINARY_UPLOAD_PRESET (optional)
-  Description: Unsigned preset name if you use unsigned uploads or want to include in signed params.
+- CLOUDINARY_UPLOAD_PRESET (optional)  
+  Description: Unsigned preset name if you use unsigned uploads or want to include in signed params.  
   Where used: src/lib/cloudinary.ts.
 
-- NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
-  Description: Public cloud name available to client code.
+- NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME  
+  Description: Public cloud name available to client code.  
   Where used: Client-side components (upload flow).
 
-- NEXT_PUBLIC_SITE_URL (optional but recommended in production)
-  Description: Absolute URL of the site (e.g., https://triptales.example.com).
+- NEXT_PUBLIC_SITE_URL (optional but recommended in production)  
+  Description: Absolute URL of the site (e.g., https://triptales.example.com).  
   Where used: SEO helpers and server-side fetches to generate absolute URLs.
 
 ## Local Development
@@ -114,7 +114,31 @@ Security notes:
   - CLOUDINARY_API_SECRET
   - Optional: CLOUDINARY_UPLOAD_PRESET, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_SITE_URL
 
-- Image optimization: next/image is configured to allow common hosts including res.cloudinary.com.
+- Image optimization: next/image is configured to allow common hosts including:
+  - res.cloudinary.com
+  - images.unsplash.com
+  - lh3.googleusercontent.com
+  - example.com (for tests/placeholders)
+  If you use additional CDNs, add them in next.config.ts under images.remotePatterns.
+
+- Absolute URLs for SSR/ISR:
+  - The app reads NEXT_PUBLIC_SITE_URL (or VERCEL_URL) to construct absolute URLs in server components (e.g., fetch on Home page, SEO helpers). Ensure this is set in production to avoid build-time fetch errors.
+
+- Accessibility & styling:
+  - Global focus-visible ring is enabled for keyboard users.
+  - Components include aria-labels and sufficient color contrast (Ocean Professional palette: blue/amber).
+  - Skeleton loaders and empty states are present on Explore and grids for a smooth UX.
+  - Spacing, rounded corners, shadows, and subtle gradients are aligned to a modern professional theme.
+
+## Routes
+
+- / — Home (recent posts grid)
+- /explore — Filterable list with infinite scroll
+- /posts/[id] — Post details
+- /posts/new — Create a new post
+- /posts/[id]/edit — Edit an existing post
+- /create — Friendly alias that points to /posts/new
+- 404 — Custom not-found page with links back to Home and Explore
 
 ## Project Scripts
 
@@ -122,12 +146,15 @@ Security notes:
 - npm run build: Build for production (server runtime)
 - npm run start: Start production server
 - npm run lint: Lint codebase
+- npm run test: Run tests
 
 ## Notes and Gotchas
 
 - Do not use output: "export" in next.config.ts. The app depends on server routes and cannot be a static export.
 - If uploads fail, verify Cloudinary env vars and that your account/preset allows the requested operations.
 - If database requests fail, confirm MONGODB_URI is valid and reachable (network/IP allowlists in Atlas).
+- If next/image throws domain errors, add your image hosts to images.remotePatterns in next.config.ts.
+- Ensure NEXT_PUBLIC_SITE_URL is set on production to avoid build-time fetch issues.
 
 ## Directory Highlights
 

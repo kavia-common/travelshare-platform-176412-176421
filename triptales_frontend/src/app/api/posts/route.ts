@@ -9,6 +9,10 @@ import {
   safeParseJson,
 } from "@/lib/validation/postSchemas";
 
+// Ensure this route is always dynamic and not statically prerendered
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 /**
  * GET /api/posts
  * Summary: List posts with pagination, filters, and sorting

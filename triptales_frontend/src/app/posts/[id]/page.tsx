@@ -131,17 +131,27 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
           <Gallery images={post.images} />
         ) : (
           <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center text-gray-600">
+            <div className="text-3xl mb-1" aria-hidden>🖼️</div>
             No images uploaded.
           </div>
         )}
 
-        {post.content && (
+        {post.content ? (
           <Card>
             <CardHeader>
               <CardTitle>Story</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="whitespace-pre-wrap">{post.content}</p>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card>
+            <CardHeader>
+              <CardTitle>Story</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">No story added yet.</p>
             </CardContent>
           </Card>
         )}
