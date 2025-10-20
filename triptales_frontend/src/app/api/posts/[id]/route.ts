@@ -80,9 +80,10 @@ export async function PATCH(req: Request, context: { params: { id: string } }) {
     }
 
     return NextResponse.json(updated, { status: 200 });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: "InternalServerError", details: [{ message: err?.message || "Unknown error" }] },
+      { error: "InternalServerError", details: [{ message }] },
       { status: 500 }
     );
   }
