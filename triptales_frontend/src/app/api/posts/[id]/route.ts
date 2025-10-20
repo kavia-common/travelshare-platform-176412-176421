@@ -3,19 +3,11 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import PostModel from "@/lib/db/models/Post";
 import { postUpdateSchema, formatZodError, safeParseJson } from "@/lib/validation/postSchemas";
+import { getSession } from "@/lib/auth/session.server";
 
-// Ensure this route is always dynamic and not statically prerendered
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-/**
- * GET /api/posts/:id
- * Summary: Fetch a single post by id
- * Description: Returns a single post by id (404 if not found).
- *
- * Next.js Route Handler signature:
- *   GET(request: Request, context: { params: Promise<{ id: string }> })
- */
 export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
@@ -46,13 +38,14 @@ export async function GET(_req: Request, context: { params: Promise<{ id: string
   }
 }
 
-/**
- * PATCH /api/posts/:id
- * Partially updates a post. Body must include at least one updatable field.
- */
 export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
+
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await context.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -60,6 +53,14 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
         { error: "BadRequest", details: [{ message: "Invalid id format" }] },
         { status: 400 }
       );
+    }
+
+    const existing = await PostModel.findById(id).lean().exec();
+    if (!existing) {
+      return NextResponse.json({ error: "NotFound" }, { status: 404 });
+    }
+    if (existing.author && String(existing.author) !== String(session.userId)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
     const parsedBody = await safeParseJson(req);
@@ -72,19 +73,19 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
       return NextResponse.json(formatZodError(result.error), { status: 400 });
     }
 
+    const updateData = { ...result.data } as Record<string, unknown>;
+    if ("author" in updateData) delete updateData.author;
+
     const updated = await PostModel.findByIdAndUpdate(
       id,
-      { $set: result.data },
+      { $set: updateData },
       { new: true, runValidators: true }
     )
       .lean()
       .exec();
 
     if (!updated) {
-      return NextResponse.json(
-        { error: "NotFound", details: [{ message: "Post not found" }] },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "NotFound" }, { status: 404 });
     }
 
     return NextResponse.json(updated, { status: 200 });
@@ -97,13 +98,14 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
   }
 }
 
-/**
- * DELETE /api/posts/:id
- * Deletes a post. Returns 204 No Content on success (or 200 with a message).
- */
 export async function DELETE(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
+
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const { id } = await context.params;
     if (!mongoose.isValidObjectId(id)) {
@@ -113,15 +115,19 @@ export async function DELETE(_req: Request, context: { params: Promise<{ id: str
       );
     }
 
-    const deleted = await PostModel.findByIdAndDelete(id).lean().exec();
-    if (!deleted) {
-      return NextResponse.json(
-        { error: "NotFound", details: [{ message: "Post not found" }] },
-        { status: 404 }
-      );
+    const existing = await PostModel.findById(id).lean().exec();
+    if (!existing) {
+      return NextResponse.json({ error: "NotFound" }, { status: 404 });
+    }
+    if (existing.author && String(existing.author) !== String(session.userId)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
 
-    // Using 204 No Content to signal deletion success without payload
+    const deleted = await PostModel.findByIdAndDelete(id).lean().exec();
+    if (!deleted) {
+      return NextResponse.json({ error: "NotFound" }, { status: 404 });
+    }
+
     return new NextResponse(null, { status: 204 });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

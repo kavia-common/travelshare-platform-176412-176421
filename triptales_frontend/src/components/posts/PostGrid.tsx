@@ -1,7 +1,9 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import type { Post } from "@/types/post";
-import PostCard from "./PostCard";
+import PostCardClient from "./PostCard.client";
 
 function SkeletonCard() {
   return (
@@ -49,7 +51,7 @@ export default function PostGrid({ posts }: { posts: Post[] }) {
     <ul role="list" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {posts.map((p) => (
         <li key={p._id || p.title}>
-          <PostCard post={p} />
+          <PostCardClient post={p} />
         </li>
       ))}
     </ul>

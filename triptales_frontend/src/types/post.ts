@@ -50,7 +50,7 @@ export interface Post {
   tips?: PostTip[];
 
   /**
-   * Author identifier (user id or name)
+   * Author identifier (user id string)
    */
   author?: string;
 
@@ -76,7 +76,7 @@ export interface Post {
   updatedAt?: string | Date;
 
   /**
-   * Optional database identifiers when mapped from MongoDB
+   * Optional database identifier when mapped from MongoDB
    */
   _id?: string;
 }

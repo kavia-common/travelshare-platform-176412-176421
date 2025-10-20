@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { connectToDatabase } from "@/lib/db/mongodb";
 import UserModel from "@/lib/db/models/User";
 import { loginSchema, formatZodError, safeParseJson } from "@/lib/validation/authSchemas";
-import { setSessionCookie } from "@/lib/auth/session";
+import { setSessionCookie } from "@/lib/auth/session-impl.server";
 import bcrypt from "bcryptjs";
 
 // Ensure always dynamic
