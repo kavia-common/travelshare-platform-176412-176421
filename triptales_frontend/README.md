@@ -3,7 +3,7 @@
 TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, and MongoDB/Mongoose. Users can share posts with photo galleries, add tips, and discover content using filters for tags and locations. This frontend provides:
 - App Router pages and components
 - API routes for posts and Cloudinary uploads
-- Direct-to-Cloudinary upload flow with signed requests
+- Authentication routes (signup/login) with secure HttpOnly cookie sessions
 - A MongoDB connection via Mongoose
 
 ## Prerequisites
@@ -24,6 +24,8 @@ TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, a
    - CLOUDINARY_API_KEY: Cloudinary API key (server-side).
    - CLOUDINARY_API_SECRET: Cloudinary API secret (server-side, private).
    - NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME: Cloud name exposed to client for building endpoints.
+   - AUTH_SECRET: Secret used to sign JWT session cookies. Must be at least 16 chars. Keep private.
+
    - Optional:
      - CLOUDINARY_UPLOAD_PRESET: If using an unsigned preset or need to include preset in signed params.
      - NEXT_PUBLIC_SITE_URL: Absolute site URL, used by SEO/SSR to generate canonical URLs and for server-side fetches.
@@ -60,6 +62,35 @@ TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, a
   Description: Absolute URL of the site (e.g., https://triptales.example.com).  
   Where used: SEO helpers and server-side fetches to generate absolute URLs.
 
+- AUTH_SECRET  
+  Description: Secret used to sign JWTs for HttpOnly session cookies (7-day expiry). Minimum 16 characters.  
+  Where used: src/lib/auth/session.ts.
+
+## Authentication
+
+This app provides basic authentication with JWT stored in HttpOnly cookies:
+
+- Passwords are hashed using bcrypt and never returned in responses.
+- JWT payload includes `sub` (user id), `email`, and expires in 7 days.
+- Cookies: HttpOnly, SameSite=Lax, Secure in production.
+
+API routes:
+- POST /api/auth/signup  
+  Body: { email, password, name }  
+  Responses:
+  - 201 { id, email, name } and sets cookie
+  - 400 with field validation errors
+  - 409 for duplicate email
+
+- POST /api/auth/login  
+  Body: { email, password }  
+  Responses:
+  - 200 { id, email, name } and sets cookie
+  - 400 validation errors
+  - 401 invalid credentials
+
+To read session (server-side): use `getSession()` in `src/lib/auth/session.ts`.
+
 ## Local Development
 
 - Install dependencies:
@@ -71,7 +102,7 @@ TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, a
 - Open the app:
   http://localhost:3000
 
-Tip: Ensure MongoDB and Cloudinary vars are set in your .env before starting to avoid runtime errors (e.g., missing MONGODB_URI or Cloudinary credentials).
+Tip: Ensure MongoDB, Cloudinary vars, and AUTH_SECRET are set in your .env before starting to avoid runtime errors.
 
 ## Cloudinary Configuration
 
@@ -112,6 +143,7 @@ Security notes:
   - CLOUDINARY_CLOUD_NAME
   - CLOUDINARY_API_KEY
   - CLOUDINARY_API_SECRET
+  - AUTH_SECRET
   - Optional: CLOUDINARY_UPLOAD_PRESET, NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME, NEXT_PUBLIC_SITE_URL
 
 - Image optimization: next/image is configured to allow common hosts including:
@@ -138,6 +170,7 @@ Security notes:
 - /posts/new — Create a new post
 - /posts/[id]/edit — Edit an existing post
 - /create — Friendly alias that points to /posts/new
+- API: /api/posts, /api/uploads/sign, /api/auth/signup, /api/auth/login
 - 404 — Custom not-found page with links back to Home and Explore
 
 ## Project Scripts
@@ -155,12 +188,15 @@ Security notes:
 - If database requests fail, confirm MONGODB_URI is valid and reachable (network/IP allowlists in Atlas).
 - If next/image throws domain errors, add your image hosts to images.remotePatterns in next.config.ts.
 - Ensure NEXT_PUBLIC_SITE_URL is set on production to avoid build-time fetch issues.
+- Ensure AUTH_SECRET is configured; otherwise auth routes will fail with 500.
 
 ## Directory Highlights
 
 - src/app/api/posts: CRUD endpoints for posts (MongoDB).
 - src/app/api/uploads/sign: Signing endpoint for Cloudinary uploads.
-- src/lib/db: Mongoose connection and Post model.
+- src/app/api/auth: Authentication endpoints (signup/login).
+- src/lib/db: Mongoose connection and models.
+- src/lib/auth/session.ts: JWT cookie session utils.
 - src/lib/cloudinary.ts: Reads env, computes upload signatures.
 - src/components/uploads/ImageUploader.tsx: Client uploader with progress and drag-and-drop.
 
