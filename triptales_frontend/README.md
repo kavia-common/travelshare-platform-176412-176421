@@ -6,6 +6,11 @@ TripTales is a modern travel-sharing web app built with Next.js, Tailwind CSS, a
 - Authentication routes (signup/login) with secure HttpOnly cookie sessions
 - A MongoDB connection via Mongoose
 
+Authentication
+- The app uses JWT sessions stored in an HttpOnly cookie (tt_session).
+- Ensure AUTH_SECRET is set in .env (min length 16). In production, cookies are Secure.
+- See README_AUTH.md for API details and cookie attributes.
+
 ## Prerequisites
 
 - Node.js 18+ (Node 20 recommended)

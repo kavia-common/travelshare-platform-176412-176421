@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
-import { Navbar } from "@/components/navigation/Navbar";
+import NavbarServer from "@/components/navigation/NavbarServer";
 import { Footer } from "@/components/navigation/Footer";
 
 const siteName = "TripTales";
@@ -80,7 +80,8 @@ export default function RootLayout({
         <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 z-50 bg-white text-blue-700 px-3 py-2 rounded-md shadow">
           Skip to content
         </a>
-        <Navbar />
+        {/* Server-aware Navbar reflects auth state and exposes logout */}
+        <NavbarServer />
         <main id="main" role="main" className="flex-1">
           {children}
         </main>
