@@ -7,12 +7,15 @@ import { postUpdateSchema, formatZodError, safeParseJson } from "@/lib/validatio
 /**
  * GET /api/posts/:id
  * Returns a single post by id (404 if not found).
+ *
+ * Next.js Route Handler signature:
+ *   GET(request: Request, context: { params: Promise<{ id: string }> })
  */
-export async function GET(_req: Request, context: { params: { id: string } }) {
+export async function GET(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
 
-    const { id } = context.params;
+    const { id } = await context.params;
     if (!mongoose.isValidObjectId(id)) {
       return NextResponse.json(
         { error: "BadRequest", details: [{ message: "Invalid id format" }] },
@@ -42,7 +45,7 @@ export async function GET(_req: Request, context: { params: { id: string } }) {
  * PATCH /api/posts/:id
  * Partially updates a post. Body must include at least one updatable field.
  */
-export async function PATCH(req: Request, context: { params: { id: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
 
@@ -93,7 +96,7 @@ export async function PATCH(req: Request, context: { params: { id: string } }) {
  * DELETE /api/posts/:id
  * Deletes a post. Returns 204 No Content on success (or 200 with a message).
  */
-export async function DELETE(_req: Request, context: { params: { id: string } }) {
+export async function DELETE(_req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     await connectToDatabase();
 
@@ -115,9 +118,10 @@ export async function DELETE(_req: Request, context: { params: { id: string } })
 
     // Using 204 No Content to signal deletion success without payload
     return new NextResponse(null, { status: 204 });
-  } catch (err: any) {
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
-      { error: "InternalServerError", details: [{ message: err?.message || "Unknown error" }] },
+      { error: "InternalServerError", details: [{ message }] },
       { status: 500 }
     );
   }
