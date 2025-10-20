@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Gallery from "@/components/posts/Gallery";
 import TipList from "@/components/posts/TipList";
 import TagChips from "@/components/posts/TagChips";
@@ -7,6 +8,7 @@ import type { Post } from "@/types/post";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { LikeButton } from "@/components/interactions/LikeButton";
 import { FavoriteToggle } from "@/components/interactions/FavoriteToggle";
+import { buildCanonical, buildDescription, buildTitle, buildOgImageForPost, getSiteBaseUrl } from "@/lib/seo";
 
 async function fetchPost(id: string): Promise<Post | null> {
   const base =
@@ -20,6 +22,77 @@ async function fetchPost(id: string): Promise<Post | null> {
   if (res.status === 404) return null;
   if (!res.ok) return null;
   return (await res.json()) as Post;
+}
+
+// PUBLIC_INTERFACE
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  /**
+   * Per-post SEO metadata: title, description, canonical, OG/Twitter images.
+   */
+  const { id } = await params;
+  const post = await fetchPost(id);
+  if (!post) {
+    return {
+      title: buildTitle("Post not found"),
+      description: buildDescription(),
+      alternates: { canonical: buildCanonical(`/posts/${id}`) },
+      openGraph: {
+        title: buildTitle("Post not found"),
+        description: buildDescription(),
+        url: buildCanonical(`/posts/${id}`),
+        images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: buildTitle("Post not found"),
+        description: buildDescription(),
+        images: ["/og-default.png"],
+      },
+    };
+  }
+
+  const title = buildTitle(post.title);
+  const description = buildDescription(post.content?.slice(0, 160));
+  const canonical = buildCanonical(`/posts/${post._id}`);
+  const ogImage = post._id ? buildOgImageForPost(post._id) : "/og-default.png";
+  const base = getSiteBaseUrl();
+
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "article",
+      title,
+      description,
+      url: canonical,
+      siteName: "TripTales",
+      images: [
+        ogImage,
+        ...(post.images?.slice(0, 1).map((img) => ({
+          url: img.url,
+          width: img.width,
+          height: img.height,
+          alt: `${post.title} – photo`,
+        })) || []),
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+    other: {
+      "theme-color": "#2563EB",
+      "og:url": canonical,
+      "og:type": "article",
+      "og:site_name": "TripTales",
+      "og:image:alt": `${post.title} – photo`,
+      "twitter:url": canonical,
+      "twitter:domain": base.replace(/^https?:\/\//, ""),
+    },
+  };
 }
 
 export default async function PostDetailsPage({ params }: { params: Promise<{ id: string }> }) {

@@ -24,7 +24,7 @@ export const Navbar: React.FC = () => {
           )}
           aria-label="TripTales home"
         >
-          <span className="inline-block h-8 w-8 rounded-lg bg-[color:var(--color-primary)] shadow-sm" />
+          <span className="inline-block h-8 w-8 rounded-lg bg-[color:var(--color-primary)] shadow-sm" aria-hidden="true" />
           <span>TripTales</span>
         </Link>
 
@@ -37,6 +37,7 @@ export const Navbar: React.FC = () => {
                   "text-sm text-gray-700 hover:text-[color:var(--color-primary)]",
                   getFocusRing()
                 )}
+                aria-label="Explore posts"
               >
                 Explore
               </a>
@@ -48,6 +49,7 @@ export const Navbar: React.FC = () => {
                   "text-sm text-gray-700 hover:text-[color:var(--color-primary)]",
                   getFocusRing()
                 )}
+                aria-label="Create a new post"
               >
                 Create
               </a>
@@ -59,6 +61,7 @@ export const Navbar: React.FC = () => {
                   "text-sm text-gray-700 hover:text-[color:var(--color-primary)]",
                   getFocusRing()
                 )}
+                aria-label="Read travel guides"
               >
                 Guides
               </a>
@@ -66,7 +69,7 @@ export const Navbar: React.FC = () => {
           </ul>
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2" aria-label="Account and actions">
           <a
             href="/signin"
             className={cn(
@@ -74,6 +77,7 @@ export const Navbar: React.FC = () => {
               "hover:bg-blue-50",
               getFocusRing()
             )}
+            aria-label="Sign in"
           >
             Sign in
           </a>
@@ -84,6 +88,7 @@ export const Navbar: React.FC = () => {
               "hover:brightness-105 active:brightness-95",
               getFocusRing()
             )}
+            aria-label="Create a new post"
           >
             New Post
           </a>

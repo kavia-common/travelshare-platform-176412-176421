@@ -39,7 +39,7 @@ export default async function Home() {
         </p>
       </header>
 
-      <Suspense fallback={<div className="text-gray-600">Loading posts…</div>}>
+      <Suspense fallback={<div className="text-gray-600" aria-live="polite">Loading posts…</div>}>
         <PostGrid posts={data} />
       </Suspense>
     </main>

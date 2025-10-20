@@ -13,18 +13,19 @@ export default function PostCard({ post }: { post: Post }) {
 
   return (
     <article className="group overflow-hidden rounded-lg bg-white shadow-sm border border-gray-100 transition hover:shadow-md">
-      <a href={`/posts/${post._id}`} aria-label={`Open post ${post.title}`} className="block">
+      <a href={`/posts/${post._id}`} aria-label={`Open post: ${post.title}`} className="block">
         <div className="relative aspect-[4/3] bg-gray-100">
           {thumb ? (
             <Image
               src={thumb.url}
-              alt={post.title}
+              alt={thumb.publicId ? `${post.title} – photo ${thumb.publicId}` : post.title}
               fill
               sizes="(max-width: 768px) 100vw, 33vw"
               className="object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+              priority={false}
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl">🗺️</div>
+            <div className="absolute inset-0 flex items-center justify-center text-gray-400 text-3xl" aria-hidden="true">🗺️</div>
           )}
         </div>
         <div className="p-4">

@@ -11,10 +11,12 @@ export default function Gallery({ images }: { images: PostImage[] }) {
         <li key={img.publicId} className="relative aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
           <Image
             src={img.url}
-            alt={`Gallery image ${idx + 1}`}
+            alt={img.publicId ? `Gallery image ${idx + 1} (${img.publicId})` : `Gallery image ${idx + 1}`}
             fill
             sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className="object-cover"
+            loading={idx < 2 ? "eager" : "lazy"}
+            priority={idx < 2}
           />
         </li>
       ))}
