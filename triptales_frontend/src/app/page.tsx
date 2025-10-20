@@ -3,14 +3,22 @@ import type { Post } from "@/types/post";
 import PostGrid from "@/components/posts/PostGrid";
 
 async function fetchPosts(): Promise<{ data: Post[] }> {
-  const url = `${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/posts?limit=12&sort=recent`;
-  // In Next.js App Router, fetch on server can use relative URL; ensure proper cache hints.
-  const res = await fetch(url || "/api/posts?limit=12&sort=recent", {
+  /**
+   * Ensure absolute URL during build/prerender:
+   * - Prefer NEXT_PUBLIC_SITE_URL or VERCEL_URL
+   * - Fallback to http://localhost:3000 for local dev builds
+   */
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+    "http://localhost:3000";
+  const url = `${base}/api/posts?limit=12&sort=recent`;
+
+  const res = await fetch(url, {
     // Revalidate Home every 60s to keep it fresh while leveraging caching
     next: { revalidate: 60 },
   });
   if (!res.ok) {
-    // Fail gracefully — return empty list
     return { data: [] };
   }
   const body = await res.json();

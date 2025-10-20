@@ -52,10 +52,11 @@ export async function GET(req: Request) {
       filter.status = status;
     }
 
-    const sortSpec =
+    // Mongoose SortOrder typing requires "asc" | "desc" | 1 | -1
+    const sortSpec: Record<string, 1 | -1> =
       sort === "popular"
-        ? { likedCount: -1, createdAt: -1 } // use likedCount then recency
-        : { createdAt: -1 }; // recent
+        ? { likedCount: -1 as const, createdAt: -1 as const } // popular: most liked, then recent
+        : { createdAt: -1 as const }; // recent
 
     const skip = (page - 1) * limit;
 

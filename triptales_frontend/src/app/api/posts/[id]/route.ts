@@ -49,7 +49,7 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
   try {
     await connectToDatabase();
 
-    const { id } = context.params;
+    const { id } = await context.params;
     if (!mongoose.isValidObjectId(id)) {
       return NextResponse.json(
         { error: "BadRequest", details: [{ message: "Invalid id format" }] },
@@ -100,7 +100,7 @@ export async function DELETE(_req: Request, context: { params: Promise<{ id: str
   try {
     await connectToDatabase();
 
-    const { id } = context.params;
+    const { id } = await context.params;
     if (!mongoose.isValidObjectId(id)) {
       return NextResponse.json(
         { error: "BadRequest", details: [{ message: "Invalid id format" }] },

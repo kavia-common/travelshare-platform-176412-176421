@@ -5,9 +5,15 @@ import TagChips from "@/components/posts/TagChips";
 import LocationChip from "@/components/posts/LocationChip";
 import type { Post } from "@/types/post";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { LikeButton } from "@/components/interactions/LikeButton";
+import { FavoriteToggle } from "@/components/interactions/FavoriteToggle";
 
 async function fetchPost(id: string): Promise<Post | null> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_SITE_URL || ""}/api/posts/${id}` || `/api/posts/${id}`, {
+  const base =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "") ||
+    "http://localhost:3000";
+  const res = await fetch(`${base}/api/posts/${id}`, {
     // revalidate every 60s
     next: { revalidate: 60 },
   });
@@ -27,17 +33,25 @@ export default async function PostDetailsPage({ params }: { params: Promise<{ id
     <main className="app-container py-6">
       <article className="space-y-6">
         <header>
-          <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">{post.title}</h1>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            {post.locations?.map((loc) => (
-              <LocationChip key={loc} location={loc} />
-            ))}
-            {!!post.tags?.length && <TagChips tags={post.tags} />}
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-semibold text-gray-900">{post.title}</h1>
+              <div className="mt-2 flex flex-wrap items-center gap-2">
+                {post.locations?.map((loc) => (
+                  <LocationChip key={loc} location={loc} />
+                ))}
+                {!!post.tags?.length && <TagChips tags={post.tags} />}
+              </div>
+              <p className="mt-2 text-sm text-gray-500">
+                {post.author ? `By ${post.author}` : "TripTales user"} •{" "}
+                {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ""}
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-2">
+              <LikeButton postId={post._id || ""} initialCount={post.likedCount || 0} initiallyLiked={false} />
+              <FavoriteToggle postId={post._id || ""} initialFavorites={post.favorites || []} userId={undefined} />
+            </div>
           </div>
-          <p className="mt-2 text-sm text-gray-500">
-            {post.author ? `By ${post.author}` : "TripTales user"} •{" "}
-            {post.createdAt ? new Date(post.createdAt).toLocaleDateString() : ""}
-          </p>
         </header>
 
         {post.images && post.images.length > 0 ? (

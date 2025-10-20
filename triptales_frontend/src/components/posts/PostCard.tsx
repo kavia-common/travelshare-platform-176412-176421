@@ -4,6 +4,8 @@ import type { Post } from "@/types/post";
 
 import TagChips from "./TagChips";
 import LocationChip from "./LocationChip";
+import { LikeButton } from "@/components/interactions/LikeButton";
+import { FavoriteToggle } from "@/components/interactions/FavoriteToggle";
 
 // PUBLIC_INTERFACE
 export default function PostCard({ post }: { post: Post }) {
@@ -33,6 +35,20 @@ export default function PostCard({ post }: { post: Post }) {
               <LocationChip key={loc} location={loc} />
             ))}
             {post.tags && post.tags.length > 0 && <TagChips tags={post.tags.slice(0, 3)} />}
+          </div>
+
+          {/* Interactions */}
+          <div className="mt-3 flex items-center justify-between">
+            <LikeButton
+              postId={post._id || ""}
+              initialCount={post.likedCount || 0}
+              initiallyLiked={false /* anonymous: no persisted like marker */}
+            />
+            <FavoriteToggle
+              postId={post._id || ""}
+              initialFavorites={post.favorites || []}
+              userId={undefined /* anonymous for now */}
+            />
           </div>
         </div>
       </a>
