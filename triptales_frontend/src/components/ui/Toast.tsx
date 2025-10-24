@@ -1,94 +1,37 @@
-"use client";
+import { cn } from '@/lib/utils';
 
-import React, { useEffect, useState } from "react";
-import { cn } from "@/lib/utils";
-
-export type ToastType = "info" | "success" | "error" | "warning";
-
-export interface ToastProps {
+export type ToastProps = {
   message: string;
-  type?: ToastType;
-  duration?: number;
+  type?: 'success' | 'error' | 'info';
+  className?: string;
   onClose?: () => void;
-}
+};
 
 // PUBLIC_INTERFACE
-export const Toast: React.FC<ToastProps> = ({
-  message,
-  type = "info",
-  duration = 3000,
-  onClose,
-}) => {
-  const [open, setOpen] = useState(true);
-  const [isExiting, setIsExiting] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsExiting(true);
-      setTimeout(() => {
-        setOpen(false);
-        onClose?.();
-      }, 200);
-    }, duration);
-
-    return () => clearTimeout(timer);
-  }, [duration, onClose]);
-
-  if (!open) return null;
-
-  const styles: Record<ToastType, { bg: string; icon: string }> = {
-    info: { 
-      bg: "bg-blue-600 text-white", 
-      icon: "ℹ️" 
-    },
-    success: { 
-      bg: "bg-emerald-600 text-white", 
-      icon: "✓" 
-    },
-    error: { 
-      bg: "bg-red-600 text-white", 
-      icon: "✕" 
-    },
-    warning: { 
-      bg: "bg-amber-600 text-white", 
-      icon: "⚠" 
-    },
-  };
-
-  const config = styles[type];
+export function Toast({ message, type = 'info', className = '', onClose }: ToastProps) {
+  /** Simple inline toast banner. */
+  const styles =
+    type === 'success'
+      ? 'bg-green-50 text-green-700 border-green-200'
+      : type === 'error'
+      ? 'bg-red-50 text-red-700 border-red-200'
+      : 'bg-blue-50 text-blue-700 border-blue-200';
 
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 z-50",
-        "px-5 py-3 rounded-lg shadow-xl",
-        "flex items-center gap-3 min-w-[280px] max-w-md",
-        config.bg,
-        "transition-all duration-200",
-        isExiting ? "opacity-0 translate-y-2" : "opacity-100 translate-y-0"
-      )}
-    >
-      <span className="text-lg" aria-hidden="true">
-        {config.icon}
-      </span>
-      <p className="text-sm font-medium flex-1">{message}</p>
-      <button
-        onClick={() => {
-          setIsExiting(true);
-          setTimeout(() => {
-            setOpen(false);
-            onClose?.();
-          }, 200);
-        }}
-        className="text-white/80 hover:text-white transition-colors"
-        aria-label="Close notification"
-      >
-        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+    <div className={cn('px-3 py-2 rounded-md border text-sm', styles, className)}>
+      <div className="flex items-center justify-between gap-3">
+        <span>{message}</span>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="text-xs px-2 py-1 rounded hover:bg-white/50"
+            aria-label="Close"
+            type="button"
+          >
+            Close
+          </button>
+        )}
+      </div>
     </div>
   );
-};
+}

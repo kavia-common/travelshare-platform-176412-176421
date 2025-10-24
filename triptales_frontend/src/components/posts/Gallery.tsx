@@ -1,25 +1,19 @@
-import React from "react";
-import Image from "next/image";
-import type { PostImage } from "@/types/post";
+import type { PostImage } from '@/types/post';
 
 // PUBLIC_INTERFACE
 export default function Gallery({ images }: { images: PostImage[] }) {
   if (!images || images.length === 0) return null;
   return (
-    <ul role="list" className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
       {images.map((img, idx) => (
-        <li key={img.publicId || `${img.url}-${idx}`} className="relative aspect-[4/3] bg-gray-100 rounded-md overflow-hidden">
-          <Image
-            src={img.url}
-            alt={img.publicId ? `Photo ${idx + 1} – ${img.publicId}` : `Photo ${idx + 1}`}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
-            className="object-cover"
-            loading={idx < 2 ? "eager" : "lazy"}
-            priority={idx < 2}
-          />
-        </li>
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={img.publicId || img.url || idx}
+          src={img.url}
+          alt={`Photo ${idx + 1}`}
+          className="w-full h-48 object-cover rounded-lg"
+        />
       ))}
-    </ul>
+    </div>
   );
 }

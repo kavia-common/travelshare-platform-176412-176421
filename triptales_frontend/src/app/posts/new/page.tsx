@@ -1,55 +1,33 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import PostForm from "@/components/posts/PostForm";
-import type { Post } from "@/types/post";
-import { Toast } from "@/components/ui/Toast";
-import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import PostForm from '@/components/posts/PostForm';
+import { useState } from 'react';
+import { Toast } from '@/components/ui/Toast';
 
 export default function NewPostPage() {
-  const [toast, setToast] = useState<{ message: string; type: "success" | "error" } | null>(null);
-  const router = useRouter();
-
-  const onSubmit = async (data: Post) => {
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      setToast({ message: "Failed to create post", type: "error" });
-      return;
-    }
-    const created = (await res.json()) as Post;
-    setToast({ message: "Post created successfully!", type: "success" });
-    setTimeout(() => {
-      router.push(`/posts/${created._id}`);
-    }, 800);
-  };
+  const [toast, setToast] = useState<{ message: string; type?: 'success' | 'error' } | null>(null);
 
   return (
     <main className="app-container section-spacing">
-      {/* Hero Section */}
-      <header className="mb-8 text-center">
-        <h1 className={cn(
-          "text-3xl md:text-4xl font-bold tracking-tight mb-3",
-          "bg-gradient-to-r from-[color:var(--color-primary)] via-blue-600 to-blue-500",
-          "bg-clip-text text-transparent"
-        )}>
-          Create Your TripTale
-        </h1>
-        <p className="text-base text-gray-600 max-w-2xl mx-auto">
-          Share your travel adventures with the world. Upload photos, add tips, and inspire fellow travelers.
-        </p>
-      </header>
-
-      {/* Form */}
-      <div className="max-w-4xl mx-auto">
-        <PostForm onSubmit={onSubmit} />
-      </div>
-
-      {toast && <Toast message={toast.message} type={toast.type} />}
+      <h1 className="text-2xl font-semibold text-gray-900 mb-6">Create New Post</h1>
+      <PostForm
+        onSubmit={async () => {
+          // Placeholder: send to /api/posts
+          try {
+            const res = await fetch('/api/posts', {
+              method: 'POST',
+              body: JSON.stringify({}),
+              headers: { 'Content-Type': 'application/json' },
+            });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            setToast({ message: 'Post saved (draft)', type: 'success' });
+          } catch (e) {
+            const err = e as { message?: string };
+            setToast({ message: err?.message || 'Failed to save', type: 'error' });
+          }
+        }}
+      />
+      {toast && <div className="mt-4"><Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} /></div>}
     </main>
   );
 }

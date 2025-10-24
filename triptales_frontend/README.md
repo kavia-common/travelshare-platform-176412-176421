@@ -1,4 +1,27 @@
-# TripTales Frontend (Next.js 14 App Router)
+# TripTales Frontend
+
+This Next.js 14 App Router frontend provides:
+- Ocean Professional theme with blue primary and amber accents
+- Homepage with image-centric grid, filters, and create button
+- Post details with gallery, story, and tips sections
+- Create post flow with Cloudinary unsigned uploads, preview/remove, and draft save
+- Basic optimistic likes and favorites
+
+Environment variables (client-side) in .env:
+- NEXT_PUBLIC_MONGODB_URI
+- NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME
+- NEXT_PUBLIC_CLOUDINARY_API_KEY
+- NEXT_PUBLIC_CLOUDINARY_API_SECRET
+- NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET
+- NEXT_PUBLIC_NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME (fallback support)
+
+Cloudinary setup:
+- Use an unsigned upload preset for client uploads.
+- Set NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME and NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET.
+- App gracefully warns if missing and disables upload.
+
+API:
+- Minimal placeholder /api/posts implemented to unblock UI. Replace with real backend as needed. (Next.js 14 App Router)
 
 TripTales is a modern travel-sharing web app built with Next.js 14, Tailwind CSS, and MongoDB/Mongoose. Users can share posts with photo galleries, add tips, and discover content using filters for tags and locations. This frontend includes:
 - App Router pages and components
